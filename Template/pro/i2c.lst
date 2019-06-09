@@ -1,0 +1,128 @@
+C51 COMPILER V9.00   I2C                                                                   06/09/2019 16:28:57 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\i2c.obj
+COMPILER INVOKED BY: D:\keil 4\C51\BIN\C51.EXE ..\c\i2c.c BROWSE INCDIR(..\h;..\main) DEBUG OBJECTEXTEND PRINT(.\i2c.lst
+                    -) OBJECT(.\i2c.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "i2c/i2c.h"
+   3          #include "delay.h"
+   4          
+   5          /*I2C启始信号*/
+   6          void I2cStart()
+   7          {
+   8   1              SDA=1;
+   9   1              delay10us();
+  10   1              SCL=1;
+  11   1              delay10us();//建立时间是SDA保持时间>4.7us
+  12   1              SDA=0;
+  13   1              delay10us();//保持时间是>4us
+  14   1              SCL=0;                  
+  15   1              delay10us();            
+  16   1      }
+  17          
+  18          /*I2C终止信号*/
+  19          void I2cStop()
+  20          {
+  21   1              SDA=0;
+  22   1              delay10us();
+  23   1              SCL=1;
+  24   1              delay10us();//建立时间大于4.7us
+  25   1              SDA=1;
+  26   1              delay10us();            
+  27   1      }
+  28          
+  29          /*通过I2C发送一个字节*/
+  30          unsigned char I2cSendByte(unsigned char dat)
+  31          {
+  32   1              unsigned char a=0,b=0;//最大255，一个机器周期为1us，最大延时255us。             
+  33   1              for(a=0;a<8;a++)//要发送8位，从最高位开始
+  34   1              {
+  35   2                      SDA=dat>>7;     //起始信号之后SCL=0，所以可以直接改变SDA信号
+  36   2                      dat=dat<<1;
+  37   2                      delay10us();
+  38   2                      SCL=1;
+  39   2                      delay10us();//建立时间>4.7us
+  40   2                      SCL=0;
+  41   2                      delay10us();//时间大于4us               
+  42   2              }
+  43   1              SDA=1;
+  44   1              delay10us();
+  45   1              SCL=1;
+  46   1              while(SDA)//等待应答，也就是等待从设备把SDA拉低
+  47   1              {
+  48   2                      b++;
+  49   2                      if(b>200)        //如果超过2000us没有应答发送失败，或者为非应答，表示接收结束
+  50   2                      {
+  51   3                              SCL=0;
+  52   3                              delay10us();
+  53   3                              return 0;
+  54   3                      }
+C51 COMPILER V9.00   I2C                                                                   06/09/2019 16:28:57 PAGE 2   
+
+  55   2              }
+  56   1              SCL=0;
+  57   1              delay10us();
+  58   1              return 1;               
+  59   1      }
+  60          
+  61          /*通过I2C读取一个字节*/
+  62          unsigned char I2cReadByte()
+  63          {
+  64   1              unsigned char a=0,dat=0;
+  65   1              SDA=1;                  //起始和发送一个字节之后SCL都是0
+  66   1              delay10us();
+  67   1              for(a=0;a<8;a++)//接收8个字节
+  68   1              {
+  69   2                      SCL=1;
+  70   2                      delay10us();
+  71   2                      dat<<=1;
+  72   2                      dat|=SDA;
+  73   2                      delay10us();
+  74   2                      SCL=0;
+  75   2                      delay10us();
+  76   2              }
+  77   1              return dat;             
+  78   1      }
+  79          
+  80          /*向某从设备的一个地址写入一个数据*/
+  81          void I2CWrite(unsigned char dev,unsigned char addr,unsigned char dat)
+  82          {
+  83   1              I2cStart();
+  84   1              I2cSendByte(dev);//发送写器件地址
+  85   1              I2cSendByte(addr);//发送要写入内存地址
+  86   1              I2cSendByte(dat); //发送数据
+  87   1              I2cStop();
+  88   1      }
+  89          
+  90          /*读取某从设备的一个地址的一个数据*/
+  91          unsigned char I2CRead(unsigned char dev,unsigned char addr)
+  92          {
+  93   1              unsigned char num;
+  94   1              I2cStart();
+  95   1              I2cSendByte(dev); //发送写器件地址
+  96   1              I2cSendByte(addr); //发送要读取的地址
+  97   1              I2cStart();
+  98   1              I2cSendByte(dev+1); //发送读器件地址
+  99   1              num=I2cReadByte(); //读取数据
+ 100   1              I2cStop();
+ 101   1              return num;     
+ 102   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    234    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

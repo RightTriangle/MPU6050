@@ -1,0 +1,7 @@
+".\main.obj",
+".\jz.obj",
+".\delay.obj",
+".\DigDisplay.obj",
+".\i2c.obj" 
+TO "test" 
+RAMSIZE(256) 

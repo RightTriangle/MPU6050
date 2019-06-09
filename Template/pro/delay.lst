@@ -1,0 +1,40 @@
+C51 COMPILER V9.00   DELAY                                                                 06/09/2019 16:28:57 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN .\delay.obj
+COMPILER INVOKED BY: D:\keil 4\C51\BIN\C51.EXE ..\c\delay.c BROWSE INCDIR(..\h;..\main) DEBUG OBJECTEXTEND PRINT(.\delay
+                    -.lst) OBJECT(.\delay.obj)
+
+line level    source
+
+   1          #include "delay.h"
+   2          #include "intrins.h"
+   3          
+   4          void delayms(unsigned int xms)
+   5          {
+   6   1              unsigned int i,j;
+   7   1              for(i=xms;i>0;i--)
+   8   1                for(j=120;j>0;j--);
+   9   1      }
+  10          
+  11          /***********************************************************************/       
+  12          /*       Delay10us()函数中共用了6个_NOP_()语句，每个语句执行时间为1 μs。   */
+  13          /*主函数调用Delay10us()时先执行一个LCALL指令(2μs)，然后执行6个_NOP_()  */
+  14          /*语句(6μs)，最后执行了一个RET指令(2 μs)，所以执行该函数时共需要10 μs。*/
+  15          /***********************************************************************/
+  16          void Delay10us(){_nop_( );_nop_( );_nop_( );_nop_( );_nop_( );_nop_( );}
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     37    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

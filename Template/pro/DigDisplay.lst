@@ -1,0 +1,76 @@
+C51 COMPILER V9.00   DIGDISPLAY                                                            06/09/2019 16:28:57 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DIGDISPLAY
+OBJECT MODULE PLACED IN .\DigDisplay.obj
+COMPILER INVOKED BY: D:\keil 4\C51\BIN\C51.EXE ..\c\DigDisplay.c BROWSE INCDIR(..\h;..\main) DEBUG OBJECTEXTEND PRINT(.\
+                    -DigDisplay.lst) OBJECT(.\DigDisplay.obj)
+
+line level    source
+
+   1          /**************************************************************************************
+   2          如果不想让点阵模块显示，可以将74HC595模块上的JP595短接片拔掉。                                                                                                                                                            
+   3          ***************************************************************************************/
+   4          #include <reg52.h>
+   5          #include "DigDisplay.h"
+   6          #include "delay.h"
+   7          #include "mytype.h"                      //已包含delay.h
+   8          
+   9          extern u8 DisplayData[8]={0,0,0,0,0,0,0,0};
+  10          
+  11          extern u8 code smgduan[17]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,
+  12                                                  0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71};//显示0~F的值  0x40为负号，0x80为小数点。
+  13          
+  14          void DigDisplay()        //DisplayData[x]=smgduan[num];
+  15          {
+  16   1              u8 i;
+  17   1              for(i=0;i<8;i++)
+  18   1              {
+  19   2                      switch(i)        //位选，选择点亮的数码管，
+  20   2                      {
+  21   3                              case(0):
+  22   3                                      LSA=1;LSB=1;LSC=1; break;//显示第1位    
+  23   3                              case(1):
+  24   3                                      LSA=0;LSB=1;LSC=1; break;//显示第2位
+  25   3                              case(2):
+  26   3                                      LSA=1;LSB=0;LSC=1; break;//显示第3位
+  27   3                              case(3):
+  28   3                                      LSA=0;LSB=0;LSC=1; break;//显示第4位
+  29   3                              case(4):
+  30   3                                      LSA=1;LSB=1;LSC=0; break;//显示第5位
+  31   3                              case(5):
+  32   3                                      LSA=0;LSB=1;LSC=0; break;//显示第6位
+  33   3                              case(6):
+  34   3                                      LSA=1;LSB=0;LSC=0; break;//显示第7位
+  35   3                              case(7):
+  36   3                                      LSA=0;LSB=0;LSC=0; break;//显示第8位            
+  37   3                      }
+  38   2                      P0=DisplayData[i];//发送段码
+  39   2                      delayms(1); //间隔一段时间扫描                                                            //改动
+  40   2                      P0=0x00;//消隐
+  41   2              }
+  42   1      }
+  43          
+  44          //void datapros()
+  45          //{
+  46          //      DisplayData[0]=smgduan[num/1000];//千位
+  47          //      DisplayData[1]=smgduan[num%1000/100];//百位
+  48          //      DisplayData[2]=smgduan[num%1000%100/10];//十位
+  49          //      DisplayData[3]=smgduan[num%10];//个位           
+  50          //}
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    115    ----
+C51 COMPILER V9.00   DIGDISPLAY                                                            06/09/2019 16:28:57 PAGE 2   
+
+   CONSTANT SIZE    =     17    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
